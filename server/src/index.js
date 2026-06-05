@@ -36,6 +36,12 @@ app.post("/createBlog", async (req, res) => {
             message: "Title field is required.."
         })
     }
+    const duplicateBlog = await Blog.find({ title: title });
+    if (duplicateBlog) {
+        return res.status(400).json({
+            message: "The blog is already created.."
+        })
+    }
     try {
         const blog = await Blog.create({
             title: title,
@@ -43,9 +49,10 @@ app.post("/createBlog", async (req, res) => {
             description: description
         })
 
+
         res.status(201).json({
             message: 'Blog created Sucessfully',
-            data: blog
+            data: blog,
         })
     } catch (error) {
         res.status(500).json({
@@ -55,6 +62,102 @@ app.post("/createBlog", async (req, res) => {
     }
 })
 
+//get api=> fetch all blogs
+app.get("/blogs", async (req, res) => {
+    const blogData = await Blog.find()
+
+    if (blogData.length == 0) {
+        return res.status(404).json({
+            message: "No blogs is found"
+        })
+    }
+
+    res.status(200).json({
+        message: "Blogs fetched successfully.",
+        data: blogData,
+        length: blogData.length
+    })
+})
+
+//get api=> single blog
+app.get("/blog/:id", async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        const blogData = await Blog.findById(userId);
+
+        if (!blogData) {
+            return res.status(404).json({
+                message: "No blog found."
+            });
+        }
+
+        res.status(200).json({
+            message: "Blog fetched successfully.",
+            data: blogData
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
+//update blpg api
+app.patch("/blog/:id", async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        const updatedBlog = await Blog.findByIdAndUpdate(userId, req.body, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!updatedBlog) {
+            return res.status(404).json({
+                message: "No blog found."
+            });
+        }
+
+        res.status(200).json({
+            message: "Blog updated successfully.",
+            data: updatedBlog
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
+
+//delete api blog
+app.delete("/blog/:id", async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        const deletedBlog = await Blog.findByIdAndDelete(blogId);
+
+
+        if (!deletedBlog) {
+            return res.status(404).json({
+                message: "Blog is not found"
+            })
+        }
+
+        res.status(200).json({
+            messgae: "Blog deleted Successfully",
+            data: deletedBlog
+        })
+
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+})
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
