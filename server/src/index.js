@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Blog } from "./models/blog.model.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -10,6 +11,12 @@ const port = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
+app.use(cors({
+    origin: "http://localhost:5173"
+}));
+
 
 // Database Connection
 async function connectDB() {
