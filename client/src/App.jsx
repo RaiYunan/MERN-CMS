@@ -6,6 +6,7 @@ import Posts from "./pages/Posts";
 import NewPost from "./pages/NewPost";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import BlogDetail from "./pages/BlogDetail";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/posts/new" element={<NewPost />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
+              <Route path="/posts/:id" element={<BlogDetail />} />
             </Routes>
           </main>
         </div>

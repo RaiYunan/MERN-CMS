@@ -6,7 +6,7 @@ export default function NewPost() {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
-  const [subTitle, setSubTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Other");
   const [status, setStatus] = useState("draft");
@@ -21,7 +21,7 @@ export default function NewPost() {
     setError(null);
 
     try {
-      await createBlog({ title, subtitle: subTitle, description, category, status });
+      await createBlog({ title, subtitle, description, category, status });
       setSuccess(true);
       setTimeout(() => navigate("/posts"), 1500); // go to posts after 1.5s
     } catch (err) {
@@ -94,8 +94,8 @@ export default function NewPost() {
             </label>
             <input
               type="text"
-              value={subTitle}
-              onChange={(e) => setSubTitle(e.target.value)}
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
               placeholder="A short description of your blog..."
               className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />

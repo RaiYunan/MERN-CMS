@@ -44,7 +44,6 @@ export default function Posts() {
     });
   }
 
-  // "published" → green, "draft" → amber, undefined/other → gray
   function getStatusStyle(status) {
     if (status === "published")
       return {
@@ -58,7 +57,6 @@ export default function Posts() {
         dot: "bg-amber-500",
         label: "Draft",
       };
-    // old blogs with no status field
     return {
       badge: "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400",
       dot: "bg-gray-400",
@@ -67,9 +65,7 @@ export default function Posts() {
   }
 
   if (loading)
-    return (
-      <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
-    );
+    return <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>;
   if (error)
     return <p className="text-red-500 text-sm">Error: {error}</p>;
 
@@ -87,7 +83,6 @@ export default function Posts() {
               All Blogs
             </h1>
           </div>
-          {/* Accurate counts */}
           <p className="text-sm text-gray-500 dark:text-gray-400 pl-4">
             {blogs.length} total &mdash; {publishedCount} published &middot; {draftCount} draft
           </p>
@@ -112,13 +107,16 @@ export default function Posts() {
               className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group shadow-sm hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-4">
-                {/* Left Content */}
-                <div className="flex-1 min-w-0 space-y-2">
+
+                {/* ✅ Left Content — wrapped in Link to open single blog */}
+                <Link
+                  to={`/posts/${blog._id}`}
+                  className="flex-1 min-w-0 space-y-2"
+                >
                   <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                       {blog.title}
                     </h3>
-                    {/* Status badge — reads real status, handles undefined */}
                     <span
                       className={`inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-md font-medium ${badge}`}
                     >
@@ -127,14 +125,12 @@ export default function Posts() {
                     </span>
                   </div>
 
-                  {/* Subtitle */}
                   {blog.subtitle && (
                     <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                       {blog.subtitle}
                     </p>
                   )}
 
-                  {/* Meta */}
                   <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                     <span className="inline-flex items-center gap-1.5">
                       <Tag size={13} />
@@ -145,7 +141,8 @@ export default function Posts() {
                       {formatDate(blog.createdAt)}
                     </span>
                   </div>
-                </div>
+                </Link>
+                {/* ✅ end of Link */}
 
                 {/* Actions — visible on hover */}
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -162,6 +159,7 @@ export default function Posts() {
                     <Trash2 size={15} />
                   </button>
                 </div>
+
               </div>
             </div>
           );
