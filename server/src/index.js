@@ -44,7 +44,8 @@ app.get("/", (req, res) => {
 // Create Blog
 app.post("/createBlog", async (req, res) => {
     try {
-        const { title, subTitle, description, category, status } = req.body; 
+        const { title, subtitle, description, category, status } = req.body;
+
 
         if (!title) {
             return res.status(400).json({
@@ -62,10 +63,10 @@ app.post("/createBlog", async (req, res) => {
 
         const blog = await Blog.create({
             title,
-            subTitle,
+            subtitle,
             description,
-            category,                                 
-            status: status || "draft",                 
+            category,
+            status: status || "draft",
         });
 
         res.status(201).json({
@@ -85,12 +86,6 @@ app.get("/blogs", async (req, res) => {
     try {
         const blogs = await Blog.find();
 
-        if (blogs.length === 0) {
-            return res.status(404).json({
-                message: "No blogs found."
-            });
-        }
-
         res.status(200).json({
             message: "Blogs fetched successfully.",
             count: blogs.length,
@@ -98,9 +93,7 @@ app.get("/blogs", async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
+        res.status(500).json({ message: error.message });
     }
 });
 
