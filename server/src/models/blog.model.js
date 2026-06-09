@@ -19,15 +19,30 @@ const blogSchema = new mongoose.Schema(
       unique: true,
     },
     coverImage: {
-      type: String, 
+      type: String,
     },
     category: {
       type: String,
-      enum: ["React", "Node.js", "MongoDB", "Express", "JavaScript", "Other"],
+      enum: [
+        "Technology",
+        "Programming",
+        "Web Development",
+        "Mobile Development",
+        "AI & Machine Learning",
+        "Database",
+        "DevOps",
+        "Cybersecurity",
+        "Design & UI/UX",
+        "Career & Productivity",
+        "Tutorial",
+        "News & Trends",
+        "Opinion",
+        "Other",
+      ],
       default: "Other",
     },
     tags: {
-      type: [String], 
+      type: [String],
       default: [],
     },
     status: {
@@ -44,7 +59,7 @@ const blogSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 export const Blog = mongoose.model("Blog", blogSchema);

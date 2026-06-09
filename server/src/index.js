@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 // Create Blog
 app.post("/createBlog", async (req, res) => {
     try {
-        const { title, subTitle, description } = req.body;
+        const { title, subTitle, description, category, status } = req.body; 
 
         if (!title) {
             return res.status(400).json({
@@ -63,7 +63,9 @@ app.post("/createBlog", async (req, res) => {
         const blog = await Blog.create({
             title,
             subTitle,
-            description
+            description,
+            category,                                 
+            status: status || "draft",                 
         });
 
         res.status(201).json({
