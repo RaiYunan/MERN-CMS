@@ -44,9 +44,37 @@ export default function Posts() {
     });
   }
 
+  // "published" → green, "draft" → amber, undefined/other → gray
+  function getStatusStyle(status) {
+    if (status === "published")
+      return {
+        badge: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+        dot: "bg-green-500",
+        label: "Published",
+      };
+    if (status === "draft")
+      return {
+        badge: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+        dot: "bg-amber-500",
+        label: "Draft",
+      };
+    // old blogs with no status field
+    return {
+      badge: "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400",
+      dot: "bg-gray-400",
+      label: "Unknown",
+    };
+  }
+
   if (loading)
-    return <p className="text-gray-500 dark:text-gray-400">Loading...</p>;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+    return (
+      <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
+    );
+  if (error)
+    return <p className="text-red-500 text-sm">Error: {error}</p>;
+
+  const publishedCount = blogs.filter((b) => b.status === "published").length;
+  const draftCount = blogs.filter((b) => b.status === "draft").length;
 
   return (
     <div>
@@ -59,8 +87,9 @@ export default function Posts() {
               All Blogs
             </h1>
           </div>
+          {/* Accurate counts */}
           <p className="text-sm text-gray-500 dark:text-gray-400 pl-4">
-            {blogs.length} {blogs.length === 1 ? "blog" : "blogs"} published
+            {blogs.length} total &mdash; {publishedCount} published &middot; {draftCount} draft
           </p>
         </div>
         <Link
@@ -74,89 +103,85 @@ export default function Posts() {
 
       {/* Blog List */}
       <div className="space-y-3">
-        {blogs.map((blog) => (
-          <div
-            key={blog._id}
-            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group shadow-sm hover:shadow-md"
-          >
-            <div className="flex items-start justify-between gap-4">
-              {/* Left Content */}
-              <div className="flex-1 min-w-0 space-y-2">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-                    {blog.title}
-                  </h3>
-                  <span
-                    className={`inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-md font-medium ${
-                      blog.status === "published"
-                        ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                    }`}
-                  >
+        {blogs.map((blog) => {
+          const { badge, dot, label } = getStatusStyle(blog.status);
+
+          return (
+            <div
+              key={blog._id}
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group shadow-sm hover:shadow-md"
+            >
+              <div className="flex items-start justify-between gap-4">
+                {/* Left Content */}
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                      {blog.title}
+                    </h3>
+                    {/* Status badge — reads real status, handles undefined */}
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        blog.status === "published"
-                          ? "bg-green-500"
-                          : "bg-amber-500"
-                      }`}
-                    ></span>
-                    {blog.status === "published" ? "Published" : "Draft"}
-                  </span>
+                      className={`inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-md font-medium ${badge}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${dot}`}></span>
+                      {label}
+                    </span>
+                  </div>
+
+                  {/* Subtitle */}
+                  {blog.subtitle && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                      {blog.subtitle}
+                    </p>
+                  )}
+
+                  {/* Meta */}
+                  <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Tag size={13} />
+                      {blog.category || "Other"}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar size={13} />
+                      {formatDate(blog.createdAt)}
+                    </span>
+                  </div>
                 </div>
 
-                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                  {blog.subtitle}
-                </p>
-
-                <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Tag size={14} />
-                    {blog.category || "Other"}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar size={14} />
-                    {formatDate(blog.createdAt)}
-                  </span>
+                {/* Actions — visible on hover */}
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Link
+                    to={`/posts/${blog._id}/edit`}
+                    className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <Pencil size={15} />
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(blog._id)}
+                    className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
                 </div>
-              </div>
-
-              {/* Right Actions */}
-              <div className="flex items-center gap-1">
-                <Link
-                  to={`/posts/${blog._id}/edit`}
-                  className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100"
-                >
-                  <Pencil size={16} />
-                </Link>
-                <button
-                  onClick={() => handleDelete(blog._id)}
-                  className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100"
-                >
-                  <Trash2 size={16} />
-                </button>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Empty State */}
         {blogs.length === 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-12 text-center">
             <div className="w-20 h-20 bg-gray-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText
-                size={40}
-                className="text-gray-300 dark:text-gray-600"
-              />
+              <FileText size={40} className="text-gray-300 dark:text-gray-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-              No blogs written yet
+              No blogs yet
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
               Get started by creating your first blog post
             </p>
             <Link
               to="/posts/new"
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+              className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Plus size={16} />
               Create First Blog
