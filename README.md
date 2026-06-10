@@ -116,19 +116,16 @@ npm run dev
 ## Screenshots
 
 
-<table width="100%">
-  <tr>
-    <td width="50%" align="center">
-      <b>Dashboard Statistics</b><br/>
-      <img src="./assets/dashboard.png" alt="Dashboard" width="100%"/>
-    </td>
-    <td width="50%" align="center">
-      <b>Create Blog Page</b><br/>
-      <img src="./assets/create-blog.png" alt="Create Blog" width="100%"/>
-    </td>
-  </tr>
-</table>
+## Screenshots
 
+### Dashboard Statistics
+![Dashboard](assets/dashboard.png)
+
+### Create Blog Page
+![Create Blog](assets/new-blog.png)
+
+### All Blog Page
+![All Blog](assets/all-blogs.png)
 ---
 
 ## Learning Context
