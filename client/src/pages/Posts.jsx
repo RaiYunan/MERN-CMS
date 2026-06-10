@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAllBlogs, deleteBlog } from "../services/blogService";
 import { Plus, Pencil, Trash2, Tag, Calendar, FileText } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Posts() {
   const [blogs, setBlogs] = useState([]);
@@ -30,9 +31,10 @@ export default function Posts() {
     deleteBlog(id)
       .then(() => {
         setBlogs(blogs.filter((blog) => blog._id !== id));
+        toast.success("Blog deleted successfully."); // ← add this
       })
       .catch((err) => {
-        alert("Failed to delete: " + err.message);
+        toast.error("Failed to delete: " + err.message); // ← replace alert
       });
   }
 
@@ -47,13 +49,15 @@ export default function Posts() {
   function getStatusStyle(status) {
     if (status === "published")
       return {
-        badge: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+        badge:
+          "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400",
         dot: "bg-green-500",
         label: "Published",
       };
     if (status === "draft")
       return {
-        badge: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+        badge:
+          "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
         dot: "bg-amber-500",
         label: "Draft",
       };
@@ -65,9 +69,10 @@ export default function Posts() {
   }
 
   if (loading)
-    return <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>;
-  if (error)
-    return <p className="text-red-500 text-sm">Error: {error}</p>;
+    return (
+      <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
+    );
+  if (error) return <p className="text-red-500 text-sm">Error: {error}</p>;
 
   const publishedCount = blogs.filter((b) => b.status === "published").length;
   const draftCount = blogs.filter((b) => b.status === "draft").length;
@@ -84,7 +89,8 @@ export default function Posts() {
             </h1>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 pl-4">
-            {blogs.length} total &mdash; {publishedCount} published &middot; {draftCount} draft
+            {blogs.length} total &mdash; {publishedCount} published &middot;{" "}
+            {draftCount} draft
           </p>
         </div>
         <Link
@@ -107,8 +113,6 @@ export default function Posts() {
               className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group shadow-sm hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-4">
-
-                {/* ✅ Left Content — wrapped in Link to open single blog */}
                 <Link
                   to={`/posts/${blog._id}`}
                   className="flex-1 min-w-0 space-y-2"
@@ -120,7 +124,9 @@ export default function Posts() {
                     <span
                       className={`inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-md font-medium ${badge}`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${dot}`}></span>
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${dot}`}
+                      ></span>
                       {label}
                     </span>
                   </div>
@@ -142,7 +148,6 @@ export default function Posts() {
                     </span>
                   </div>
                 </Link>
-                {/* ✅ end of Link */}
 
                 {/* Actions — visible on hover */}
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -159,7 +164,6 @@ export default function Posts() {
                     <Trash2 size={15} />
                   </button>
                 </div>
-
               </div>
             </div>
           );
@@ -169,7 +173,10 @@ export default function Posts() {
         {blogs.length === 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 p-12 text-center">
             <div className="w-20 h-20 bg-gray-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText size={40} className="text-gray-300 dark:text-gray-600" />
+              <FileText
+                size={40}
+                className="text-gray-300 dark:text-gray-600"
+              />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
               No blogs yet

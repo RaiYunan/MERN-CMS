@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createBlog } from "../services/blogService";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getBlogById, updateBlog } from "../services/blogService";
+import toast from "react-hot-toast";
 
-export default function NewPost() {
+const EditPost = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -12,36 +14,62 @@ export default function NewPost() {
   const [status, setStatus] = useState("draft");
 
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    getBlogById(id)
+      .then((res) => {
+        const blog = res.data.data;
+        setTitle(blog.title || "");
+        setSubtitle(blog.subtitle || "");
+        setDescription(blog.description || "");
+        setCategory(blog.category || "Other");
+        setStatus(blog.status || "draft");
+        setFetching(false);
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || "Failed to load blog.");
+        setFetching(false);
+      });
+  }, [id]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
-      await createBlog({ title, subtitle, description, category, status });
-      setSuccess(true);
-      setTimeout(() => navigate("/posts"), 1500); // go to posts after 1.5s
+      await updateBlog(id, { title, subtitle, description, category, status });
+      toast.success("Blog updated successfully!");
+      setTimeout(() => navigate("/posts"), 1500);
     } catch (err) {
-      // show the error message from your Express API
-      setError(err.response?.data?.message || "Something went wrong.");
+      toast.error(err.response?.data?.message || "Failed to update blog.");
     } finally {
       setLoading(false);
     }
   }
 
+  if (fetching)
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p className="ml-3 text-gray-500 dark:text-gray-400 text-sm">
+          Loading blog...
+        </p>
+      </div>
+    );
+
+  if (error) return <p className="text-red-500 text-sm">Error: {error}</p>;
   return (
     <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Create New Blog
+            Edit Blog
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Fill in the details and publish your blog
+            Update the details and save your changes
           </p>
         </div>
         <button
@@ -51,20 +79,6 @@ export default function NewPost() {
           ← Back
         </button>
       </div>
-
-      {/* Success Message */}
-      {success && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-sm">
-          ✅ Blog created successfully! Redirecting...
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
-          ❌ {error}
-        </div>
-      )}
 
       {/* Form Card */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
@@ -112,7 +126,6 @@ export default function NewPost() {
               rows={8}
               className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
             />
-            {/* Character count */}
             <p className="text-xs text-gray-400 mt-1 text-right">
               {description.length} characters
             </p>
@@ -152,7 +165,7 @@ export default function NewPost() {
           {/* Divider */}
           <div className="border-t border-gray-100 dark:border-gray-700" />
 
-          {/* Buttons — Save Draft on left, Publish on right */}
+          {/* Buttons */}
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -179,7 +192,7 @@ export default function NewPost() {
                 Save Draft
               </button>
 
-              {/* Publish */}
+              {/* Update */}
               <button
                 type="button"
                 disabled={loading}
@@ -192,7 +205,7 @@ export default function NewPost() {
                 }}
                 className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-medium transition"
               >
-                {loading ? "Saving..." : "Publish"}
+                {loading ? "Saving..." : "Update & Publish"}
               </button>
             </div>
           </div>
@@ -200,4 +213,6 @@ export default function NewPost() {
       </div>
     </div>
   );
-}
+};
+
+export default EditPost;

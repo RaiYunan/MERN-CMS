@@ -7,11 +7,14 @@ import NewPost from "./pages/NewPost";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BlogDetail from "./pages/BlogDetail";
+import { Toaster } from "react-hot-toast";
+import EditPost from "./pages/EditPost";
 
 function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
+      <Toaster position="top-right" />
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
           <Navbar />
           <main className="max-w-4xl mx-auto p-6">
@@ -22,6 +25,7 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/posts/:id" element={<BlogDetail />} />
+              <Route path="/posts/:id/edit" element={<EditPost/>}/>
             </Routes>
           </main>
         </div>
